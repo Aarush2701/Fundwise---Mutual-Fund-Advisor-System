@@ -47,7 +47,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String jwt = jwtService.generateToken(user.getEmail());
 
-        response.sendRedirect("https://fundwise-mutual-fund-advisor-system.onrender.com/oauth2/redirect?token=" + jwt);
+        response.sendRedirect("https://fundwise-mutual-fund-advisor-system.onrender.com/oauth-success?token=" + jwt);
 
     }
 }

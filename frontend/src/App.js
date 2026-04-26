@@ -31,26 +31,21 @@ function OAuthSuccess() {
   const token = params.get('token');
 
   React.useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-
-        login({
-          token
-        });
-
-        // ✅ REDIRECT AFTER LOGIN
-        navigate('/dashboard', { replace: true });
-
-      } catch {
-        login({token});
-        navigate('/dashboard', { replace: true });
-      }
-    } else {
-      // fallback if token missing
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      login({
+        token,
+        email: payload.sub,  // ✅ email only
+      });
+      navigate('/dashboard', { replace: true });
+    } catch {
       navigate('/login', { replace: true });
     }
-  }, [token, login, navigate]);
+  } else {
+    navigate('/login', { replace: true });
+  }
+}, [token, login, navigate]);
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh' }}>

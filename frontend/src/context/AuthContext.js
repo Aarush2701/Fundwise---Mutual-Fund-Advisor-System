@@ -14,17 +14,14 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = (authResponse) => {
-    // authResponse can be { token, email, name } from email login
-    // or { token, email } from Google OAuth
-    const userData = {
-      email: authResponse.email || '',
-      name: authResponse.name || authResponse.email || '',
-    };
-    localStorage.setItem('token', authResponse.token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setToken(authResponse.token);
-    setUser(userData);
+  const userData = {
+    email: authResponse.email || '',
   };
+  localStorage.setItem('token', authResponse.token);
+  localStorage.setItem('user', JSON.stringify(userData));
+  setToken(authResponse.token);
+  setUser(userData);
+};
 
   const logout = () => {
     localStorage.removeItem('token');
