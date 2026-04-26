@@ -30,7 +30,9 @@ export default function Login() {
   };
 
   const googleLogin = () => {
-    window.location.href = 'https://fundwise-mutual-fund-advisor-system-8w4f.onrender.com/oauth2/authorization/google';
+    const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    const normalizedApiBase = apiBase.endsWith('/') ? apiBase.slice(0, -1) : apiBase;
+    window.location.href = `${normalizedApiBase}/oauth2/authorization/google`;
   };
 
   return (

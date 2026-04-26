@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -47,7 +49,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         String jwt = jwtService.generateToken(user.getEmail());
 
-        response.sendRedirect("https://fundwise-mutual-fund-advisor-system.onrender.com/oauth-success?token=" + jwt);
+        String frontendBaseUrl = frontendUrl.endsWith("/")
+                ? frontendUrl.substring(0, frontendUrl.length() - 1)
+                : frontendUrl;
+        String encodedJwt = URLEncoder.encode(jwt, StandardCharsets.UTF_8);
+
+        response.sendRedirect(frontendBaseUrl + "/oauth-success?token=" + encodedJwt);
 
     }
 }
