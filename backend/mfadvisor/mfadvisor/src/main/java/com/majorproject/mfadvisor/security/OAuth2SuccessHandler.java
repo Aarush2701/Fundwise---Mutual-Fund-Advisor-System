@@ -54,7 +54,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 : frontendUrl;
         String encodedJwt = URLEncoder.encode(jwt, StandardCharsets.UTF_8);
 
-        response.sendRedirect(frontendBaseUrl + "/oauth-success?token=" + encodedJwt);
+        // Redirect to root to avoid SPA deep-link routing issues on some static hosts.
+        response.sendRedirect(frontendBaseUrl + "/?token=" + encodedJwt);
 
     }
 }

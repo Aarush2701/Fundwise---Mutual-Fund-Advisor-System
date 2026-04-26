@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useSearchParams,useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
@@ -12,6 +12,13 @@ import Recommendations from './pages/Recommendations';
 import Compare from './pages/Compare';
 import Calculator from './pages/Calculator';
 import Profile from './pages/Profile';
+
+function parseJwtPayload(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+  return JSON.parse(atob(padded));
+}
 
 function PrivateRoute({ children }) {
   const { isLoggedIn } = useAuth();
@@ -33,7 +40,7 @@ function OAuthSuccess() {
   React.useEffect(() => {
   if (token) {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = parseJwtPayload(token);
       login({
         token,
         email: payload.sub,  // ✅ email only
@@ -54,9 +61,43 @@ function OAuthSuccess() {
   );
 }
 
+function OAuthTokenHandler() {
+  const { login, isLoggedIn } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (isLoggedIn) return;
+
+    const params = new URLSearchParams(location.search);
+    const tokenFromSearch = params.get('token');
+
+    // Optional fallback for providers/configs that return token in hash.
+    const hashParams = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+    const tokenFromHash = hashParams.get('token');
+
+    const token = tokenFromSearch || tokenFromHash;
+    if (!token) return;
+
+    try {
+      const payload = parseJwtPayload(token);
+      login({
+        token,
+        email: payload.sub || '',
+      });
+      navigate('/dashboard', { replace: true });
+    } catch {
+      navigate('/login', { replace: true });
+    }
+  }, [location.search, location.hash, isLoggedIn, login, navigate]);
+
+  return null;
+}
+
 function AppRoutes() {
   return (
     <>
+      <OAuthTokenHandler />
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />
